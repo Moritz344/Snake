@@ -72,33 +72,36 @@ def show_menu():
 
           # Text
           # collide box
-          text_box = pygame.draw.rect(screen,light_green,[300,200,200,50])
-          text_box = pygame.draw.rect(screen,light_dark,[300,200,200,50])
-
-          # collision with text and different colors when hover
-          if text_box.collidepoint(mouse):
+          def start_text():
+               global text_box
+               text_box = pygame.draw.rect(screen,light_green,[300,200,200,50])
                text_box = pygame.draw.rect(screen,light_dark,[300,200,200,50])
-               start_text = font_2.render("Start",True,green)
-          else:
-               start_text = font_2.render("Start",True,white)
 
-          dest = (300,200)
-          screen.blit(start_text,dest)
+               # collision with text and different colors when hover
+               if text_box.collidepoint(mouse):
+                    text_box = pygame.draw.rect(screen,light_dark,[300,200,200,50])
+                    start_text = font_2.render("Start",True,green)
+               else:
+                    start_text = font_2.render("Start",True,white)
 
+               dest = (300,200)
+               screen.blit(start_text,dest)
+          start_text()
           # <----
+          def credit_text():
+               global credit_text_box
+               credit_text_box = pygame.draw.rect(screen,light_dark,[300,360,250,50])
 
-          credit_text_box = pygame.draw.rect(screen,light_dark,[300,360,250,50])
-
-          if credit_text_box.collidepoint(mouse):
-               credit_text = font_2.render("Credits",True,green)
-          else:
-               credit_text = font_2.render("Credits",True,white)
-
-
-          dest_3 = (300,360)
-          screen.blit(credit_text,dest_3)
+               if credit_text_box.collidepoint(mouse):
+                    credit_text = font_2.render("Credits",True,green)
+               else:
+                    credit_text = font_2.render("Credits",True,white)
 
 
+               dest_3 = (300,360)
+               screen.blit(credit_text,dest_3)
+
+          credit_text()
           # <---          
           quit_text_box = pygame.draw.rect(screen,light_dark,[300,280,150,50])
 
