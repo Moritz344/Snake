@@ -2,6 +2,8 @@ import pygame
 import random
 import time
 import sys
+import os
+import json
 
 pygame.init()
 
@@ -62,6 +64,36 @@ bar_height = 20 # 20
 foodx = random.randint(0,x) 
 foody = random.randint(0,y)
 
+# highscore
+
+def load_highscore():
+               # Schauen ob datei existiert
+               if os.path.exists("score.txt"):
+                    # datei öffnen
+                    with open("score.txt","r") as file:
+                         # datei lesen
+                         data = file.readlines()
+                         # iteriert
+                         data = [int(score.strip()) for score in data]
+                    return data
+               else:
+                    return []
+
+def save_score(data):
+     with open("score.txt","w") as file:
+          # Höhere Zahl kommt nach oben kleinere nach unten in score.txt
+          data.sort(reverse=True)
+          for score in data:
+               # schreiben des scores in score.txt
+               file.write(f"{score}\n")
+               
+               
+
+def update_score(highscore_list):
+     highscore_list.append(score)
+     #highscore_list.sort(reverse=True)
+     return highscore_list
+
 #ui
 def show_menu():
      menu = True
@@ -101,6 +133,9 @@ def show_menu():
 
                dest_3 = (300,360)
                screen.blit(credit_text,dest_3)
+          
+
+          
 
           credit_text()
           # <---
@@ -169,10 +204,8 @@ def drawing_and_collision():
                          #if snake_speed > 8:
                               #snake_speed = 8 
                               #print("MAX SPEED!")
-
-
-     
-
+               
+highscores = load_highscore()      
 show_menu()
 
 run = True
@@ -205,8 +238,11 @@ while run:
      snake_head = [snake_x,snake_y]
      snake_list.append(snake_head)
 
+     
+
      # Text
      score_text = font.render(f"Score: {score}",False,white)
+     highscore_text = font.render(f"HighScore: {highscores[0] if highscores else 0}",False,white)
      death_text = font_2.render("You died!",False,red)
      small_text = font_3.render("Press ESCAPE to quit",False,white)
      
@@ -236,10 +272,16 @@ while run:
      dest = (5,0)
      dest_2 = (250 ,300)
      dest_3 = (275,370)
+     dest_4 = (500,0)
      screen.blit(score_text,dest)
+     screen.blit(highscore_text,dest_4)
 
      drawing_and_collision()
      movement()
      clock.tick(60) 
      pygame.display.update()
+
+highscores = update_score(highscores)
+save_score(highscores)
+
 pygame.quit()
