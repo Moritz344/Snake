@@ -10,6 +10,7 @@ y = 600
 screen = pygame.display.set_mode((x,y))
 clock = pygame.time.Clock()
 pygame.display.set_caption("Snake")
+pygame.display.set_icon(screen)
 
 # Farben
 white = (255,255,255)
@@ -102,17 +103,20 @@ def show_menu():
                screen.blit(credit_text,dest_3)
 
           credit_text()
-          # <---          
-          quit_text_box = pygame.draw.rect(screen,light_dark,[300,280,150,50])
+          # <---
+          def quit_text():
+               global quit_text_box
+               quit_text_box = pygame.draw.rect(screen,light_dark,[300,280,150,50])
 
 
-          if quit_text_box.collidepoint(mouse):
-               quit_text = font_2.render("Quit",True,green)
-          else:
-               quit_text = font_2.render("Quit",True,white)
+               if quit_text_box.collidepoint(mouse):
+                    quit_text = font_2.render("Quit",True,green)
+               else:
+                    quit_text = font_2.render("Quit",True,white)
 
-          dest_2 = (300,280)
-          screen.blit(quit_text,dest_2)
+               dest_2 = (300,280)
+               screen.blit(quit_text,dest_2)
+          quit_text()
           # <----
           for event in pygame.event.get():
                if event.type == pygame.QUIT:
