@@ -5,6 +5,10 @@ import sys
 import os
 import json
 
+
+# BUG:  Der Highscore wird nur gespeichert wenn man stirbt
+# FIX:  funktion in while schleife ausführen? ZU VIELE LINES OF TEXT IN score.txt
+
 pygame.init()
 
 x = 800
@@ -12,7 +16,6 @@ y = 600
 screen = pygame.display.set_mode((x,y))
 clock = pygame.time.Clock()
 pygame.display.set_caption("Snake")
-pygame.display.set_icon(screen)
 
 # Farben
 white = (255,255,255)
@@ -47,6 +50,10 @@ pygame.font.init()
 font = pygame.font.SysFont("Minecraft",36)
 font_2 = pygame.font.SysFont("Minecraft",60)
 font_3 = pygame.font.SysFont("Minecraft",20)
+font_4 = pygame.font.SysFont("Minecraft",100)
+font_5 = pygame.font.SysFont("Product Sans",40)
+
+# 
 
 # Score System
 score = 0
@@ -58,7 +65,12 @@ bar_y = 0
 bar_width = 0 # 200
 bar_height = 20 # 20
 
+# background
+background = pygame.image.load("assets/ground.jpg")
 
+# icon
+icon = pygame.image.load("assets/icon.jpg")
+pygame.display.set_icon(icon)
 
 # food
 foodx = random.randint(0,x) 
@@ -94,23 +106,28 @@ def update_score(highscore_list):
      #highscore_list.sort(reverse=True)
      return highscore_list
 
+# sfx
+#eat_sound = pygame.mixer.Sound("")
+#eat_sound.play()
+pygame.mixer.init()
+hover_sound = pygame.mixer.Sound("sound/hover_sound.wav")
+
 #ui
 def show_menu():
      menu = True
      while menu:
           screen.fill(light_dark)
 
-          # mouse pos
+          # Maus Position
           mouse = pygame.mouse.get_pos()
 
           # Text
-          # collide box
           def start_text():
                global text_box
-               text_box = pygame.draw.rect(screen,light_green,[300,200,200,50])
+               text_box = pygame.draw.rect(screen,light_dark,[300,200,200,50])
                text_box = pygame.draw.rect(screen,light_dark,[300,200,200,50])
 
-               # collision with text and different colors when hover
+               # Verschieden farben wenn hover und Kollision 
                if text_box.collidepoint(mouse):
                     text_box = pygame.draw.rect(screen,light_dark,[300,200,200,50])
                     start_text = font_2.render("Start",True,green)
@@ -131,12 +148,11 @@ def show_menu():
                     credit_text = font_2.render("Credits",True,white)
 
 
-               dest_3 = (300,360)
+               dest_3 = (280,360)
                screen.blit(credit_text,dest_3)
           
 
           
-
           credit_text()
           # <---
           def quit_text():
@@ -145,13 +161,37 @@ def show_menu():
 
 
                if quit_text_box.collidepoint(mouse):
-                    quit_text = font_2.render("Quit",True,green)
+                    quit_text = font_2.render("Quit",True,red)
                else:
                     quit_text = font_2.render("Quit",True,white)
 
-               dest_2 = (300,280)
+               dest_2 = (330,280)
                screen.blit(quit_text,dest_2)
+
           quit_text()
+
+          def big_text():
+               dest_5 = (230,10)
+               big_text = font_4.render("SNAKE",False,black)
+               screen.blit(big_text,dest_5)
+          big_text()
+
+          def scores_text():
+              global scores_text_menu_box
+              destination = (280,430)
+              scores_text_menu_box = pygame.draw.rect(screen,light_dark,[280,430,240,50])
+
+              if scores_text_menu_box.collidepoint(mouse):
+                    scores_text_menu = font_2.render("Scores",True,green) 
+              else:
+                    scores_text_menu = font_2.render("Scores",True,white) 
+
+
+
+
+              screen.blit(scores_text_menu,destination)
+
+          scores_text()
           # <----
           for event in pygame.event.get():
                if event.type == pygame.QUIT:
@@ -161,17 +201,70 @@ def show_menu():
                          menu = False
                if event.type == pygame.MOUSEBUTTONDOWN:
                     if text_box.collidepoint(event.pos):
+                         hover_sound.play()
                          menu = False
                     if quit_text_box.collidepoint(event.pos):
+                         hover_sound.play()
+                         time.sleep(0.1)
                          sys.exit(0)
                     if credit_text_box.collidepoint(event.pos):
+                         hover_sound.play()
                          print("CREDITS!!!")
+                    if scores_text_menu_box.collidepoint(event.pos):
+                         hover_sound.play()
+                         score_screen()
+                    
+
 
 
 
               #screen.fill(black)
           pygame.display.update()
           clock.tick(60)
+     
+def score_screen():
+     halloffame = True
+     while halloffame:
+          screen.fill(black) 
+          for event in pygame.event.get():
+               if event.type == pygame.QUIT:
+                    halloffame = False
+               if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                         halloffame = False
+               if event.type == pygame.MOUSEBUTTONDOWN:
+                    if back_button_box.collidepoint(event.pos):
+                         hover_sound.play()
+                         halloffame = False
+
+          # mouse pos
+          mouse = pygame.mouse.get_pos()
+
+
+          # header text
+          header = font_2.render("HallOfFame",True,white) 
+          screen.blit(header,dest=(230,0))
+
+          # button
+
+          back_button_box = pygame.draw.rect(screen,black,[0,560,100,50])
+          if back_button_box.collidepoint(mouse):
+               back_button = font.render("Back",True,red)
+          else:
+               back_button = font.render("Back",True,white)
+
+          
+          highscore_text = font_5.render(f"HighScore: {highscores[0] if highscores else 0}",False,white)
+          current_score = font_5.render(f"Score: {score}",False,white)
+          screen.blit(highscore_text,dest=(240,200))
+          screen.blit(current_score,dest=(240,310))
+
+
+          screen.blit(back_button,dest=(5,560))
+
+          pygame.display.update()
+          clock.tick(60)
+
 
 
 def movement():
@@ -187,7 +280,7 @@ def movement():
 def drawing_and_collision():
      global snake_len,score,foodx,foody,bar_width,snake_speed,snake_speed_max
      for i in snake_list:
-          snake = pygame.draw.rect(screen,white,[i[0],i[1],snake_block,snake_block])
+          snake = pygame.draw.rect(screen,green,[i[0],i[1],snake_block,snake_block])
           if snake.colliderect(food):
                     
                #dest_2 = (250 ,300)
@@ -225,7 +318,8 @@ while run:
                elif event.key == pygame.K_ESCAPE:
                     menu = True
                     show_menu()
-     screen.fill(dark_green)
+               
+     screen.blit(background,(0,0))
 
      direction = change_to
 
@@ -234,7 +328,10 @@ while run:
 
      food = pygame.draw.rect(screen,red,[foodx,foody,20,20])
 
-     # growing snake
+     food_image = pygame.image.load("assets/apfel.png")
+     #screen.blit(food_image,(100,100))
+
+     # snake wächst 
      snake_head = [snake_x,snake_y]
      snake_list.append(snake_head)
 
@@ -250,9 +347,9 @@ while run:
      #bar = pygame.draw.rect(screen,blue,[bar_x,bar_y,bar_width,bar_height])
      #outline = pygame.draw.rect(screen,white,[bar_x,bar_y,200,20],3)
 
-     # collsion with itself
-     for i in snake_list[:-1]:
-          if i == snake_head:
+     # Kollision mit sich selbs 
+     for body in snake_list[:-1]:
+          if body == snake_head:
                run = False
      # 
      if len(snake_list) > snake_len:
@@ -281,7 +378,7 @@ while run:
      clock.tick(60) 
      pygame.display.update()
 
-highscores = update_score(highscores)
-save_score(highscores)
+     highscores = update_score(highscores)
+     save_score(highscores)
 
 pygame.quit()
