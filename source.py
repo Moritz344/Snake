@@ -6,8 +6,7 @@ import os
 import json
 
 
-# BUG:  Der Highscore wird nur gespeichert wenn man stirbt
-# FIX:  funktion in while schleife ausführen? ZU VIELE LINES OF TEXT IN score.txt
+# BUG:  Der Highscore wird nur gespeichert wenn man stirbt| FIX: funktion in game loop ausführen... -_-
 
 pygame.init()
 
@@ -69,13 +68,14 @@ bar_height = 20 # 20
 background = pygame.image.load("assets/ground.jpg")
 
 # icon
-icon = pygame.image.load("assets/icon.jpg")
+icon = pygame.image.load("assets/icon_2.png")
 pygame.display.set_icon(icon)
 
 # food
-foodx = random.randint(0,x) 
-foody = random.randint(0,y)
-
+food_image = pygame.image.load("assets/food.png")
+food_image = pygame.transform.scale(food_image, (40, 40))
+food_rect = food_image.get_rect()
+food_rect.topleft = (random.randint(0, x - food_rect.width), random.randint(0, y - food_rect.height))
 # highscore
 
 def load_highscore():
@@ -225,7 +225,7 @@ def show_menu():
 def score_screen():
      halloffame = True
      while halloffame:
-          screen.fill(black) 
+          screen.fill(light_dark) 
           for event in pygame.event.get():
                if event.type == pygame.QUIT:
                     halloffame = False
@@ -247,20 +247,21 @@ def score_screen():
 
           # button
 
-          back_button_box = pygame.draw.rect(screen,black,[0,560,100,50])
+          back_button_box = pygame.draw.rect(screen,light_dark,[5,530,150,50])
           if back_button_box.collidepoint(mouse):
-               back_button = font.render("Back",True,red)
+               back_button = font_2.render("Back",True,red)
           else:
-               back_button = font.render("Back",True,white)
+               back_button = font_2.render("Back",True,white)
 
           
           highscore_text = font_5.render(f"HighScore: {highscores[0] if highscores else 0}",False,white)
           current_score = font_5.render(f"Score: {score}",False,white)
+
           screen.blit(highscore_text,dest=(240,200))
-          screen.blit(current_score,dest=(240,310))
+          screen.blit(current_score,dest=(240,250))
 
 
-          screen.blit(back_button,dest=(5,560))
+          screen.blit(back_button,dest=(5,530))
 
           pygame.display.update()
           clock.tick(60)
@@ -280,18 +281,21 @@ def movement():
 def drawing_and_collision():
      global snake_len,score,foodx,foody,bar_width,snake_speed,snake_speed_max
      for i in snake_list:
-          snake = pygame.draw.rect(screen,green,[i[0],i[1],snake_block,snake_block])
-          if snake.colliderect(food):
+          snake = pygame.draw.rect(screen,white,[i[0],i[1],snake_block,snake_block])
+          
+          screen.blit(food_image,food_rect.topleft)
+          #screen.blit(food_image,food_rect.topleft)
+          if snake.colliderect(food_rect):
                     
                #dest_2 = (250 ,300)
                #dest_3 = (275,370)
-               foodx = random.randint(0,750)
-               foody = random.randint(60,400)
+               
+               food_rect.topleft = (random.randint(0,x - food_rect.width),random.randint(0,y-food_rect.height))
                snake_len += 1
                score += 1
-               bar_width += 20
-               if bar_width == 200:
-                    bar_width = 0
+               #bar_width += 20
+               #if bar_width == 200:
+                   # bar_width = 0
                     #if bar_width == 20 or bar_width == 60 or bar_width == 80 or bar_width == 100:
                          #snake_speed += 1
                          #if snake_speed > 8:
@@ -318,17 +322,18 @@ while run:
                elif event.key == pygame.K_ESCAPE:
                     menu = True
                     show_menu()
-               
-     screen.blit(background,(0,0))
 
+           
+     screen.blit(background,(0,0))
+     
      direction = change_to
 
     
 
 
-     food = pygame.draw.rect(screen,red,[foodx,foody,20,20])
+     #food = pygame.draw.rect(screen,red,[foodx,foody,20,20])
 
-     food_image = pygame.image.load("assets/apfel.png")
+     
      #screen.blit(food_image,(100,100))
 
      # snake wächst 
